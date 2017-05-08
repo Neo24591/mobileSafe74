@@ -1,0 +1,88 @@
+package com.example.mobilesafe74.activity;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.v7.app.AppCompatActivity;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.example.mobilesafe74.R;
+import com.example.mobilesafe74.bean.AppInfo;
+import com.example.mobilesafe74.db.AppLockDao;
+import com.example.mobilesafe74.provider.AppInfoProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class AppLockActivity extends AppCompatActivity {
+
+    private Button bt_unlock,bt_lock;
+    private LinearLayout ll_unlock,ll_lock;
+    private TextView tv_unlock,tv_lock;
+    private ListView lv_unlock,lv_lock;
+    private List<AppInfo> mAppInfoList;
+    private List<AppInfo> mLockList;
+    private List<AppInfo> mUnLockList;
+    private AppLockDao mDao;
+    private Handler mHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+
+        }
+    };
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_app_lock);
+
+        initUI();
+
+        initData();
+    }
+
+    private void initData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {	//1.获取所有手机中的应用
+                mAppInfoList = AppInfoProvider.getAppInfoList(getApplicationContext());
+                //2.区分已加锁应用和未加锁应用
+                mLockList = new ArrayList<AppInfo>();
+                mUnLockList = new ArrayList<AppInfo>();
+
+                //3.获取数据库中已加锁应用包名的的结合
+                mDao = AppLockDao.getInstance(getApplicationContext());
+                List<String> lockPackageList = mDao.findAll();
+                for (AppInfo appInfo : mAppInfoList) {
+                    //4,如果循环到的应用的包名,在数据库中,则说明是已加锁应用
+                    if(lockPackageList.contains(appInfo.packageName)){
+                        mLockList.add(appInfo);
+                    }else{
+                        mUnLockList.add(appInfo);
+                    }
+                }
+                //通知适配器需要更新数据
+                mHandler.sendEmptyMessage(0);
+
+
+            }
+        }){}.start();
+    }
+
+    private void initUI() {
+        bt_unlock = (Button) findViewById(R.id.bt_unlock);
+        bt_lock = (Button) findViewById(R.id.bt_lock);
+
+        ll_unlock = (LinearLayout) findViewById(R.id.ll_unlock);
+        ll_lock = (LinearLayout) findViewById(R.id.ll_lock);
+
+        tv_unlock = (TextView) findViewById(R.id.tv_unlock);
+        tv_lock = (TextView) findViewById(R.id.tv_lock);
+
+        lv_unlock = (ListView) findViewById(R.id.lv_unlock);
+        lv_lock = (ListView) findViewById(R.id.lv_lock);
+    }
+}

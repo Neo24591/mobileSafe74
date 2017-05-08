@@ -1,0 +1,47 @@
+package com.example.mobilesafe74.activity;
+
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+
+import com.example.mobilesafe74.R;
+import com.example.mobilesafe74.utils.ConstantValue;
+import com.example.mobilesafe74.utils.SpUtils;
+import com.example.mobilesafe74.view.SettingItemView;
+
+
+/**
+ * Created by yueyue on 2017/1/13.
+ */
+public class SettingActivity extends AppCompatActivity {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_setting);
+
+        //初始化更新的条目
+        initUpdate();
+    }
+
+    /**
+     * 初始化更新的条目
+     */
+    private void initUpdate() {
+        final SettingItemView siv_update = (SettingItemView) findViewById(R.id.siv_update);
+
+        boolean open_update = SpUtils.getBoolean(this, ConstantValue.OPEN_UPDATE, false);
+        siv_update.setCheck(open_update);
+
+        siv_update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                boolean isCheck = siv_update.isCheck();
+                siv_update.setCheck(!isCheck);
+
+                SpUtils.putBoolean(getApplicationContext(),ConstantValue.OPEN_UPDATE,!isCheck);
+            }
+        });
+
+    }
+}

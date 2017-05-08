@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.example.mobilesafe74">
+
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/> <!-- //获取准确GPS坐标的权限 -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/> <!-- //获取粗略坐标的权限(网络定位时使用) -->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <!-- 在窗体上挂在view的权限 -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
+    <uses-permission android:name="android.permission.PROCESS_OUTGOING_CALLS"/>
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG"/>
+    <uses-permission android:name="android.permission.WRITE_SMS"/>
+    <uses-permission android:name="android.permission.READ_SMS"/>
+    <uses-permission android:name="android.permission.KILL_BACKGROUND_PROCESSES"/>
+    <uses-permission android:name="android.permission.INSTALL_SHORTCUT"/>
+    <uses-permission android:name="android.permission.CALL_PHONE"/>
+
+    <application
+        android:name=".activity.MyApplication"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme">
+        <activity android:name=".activity.SplashActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+        <activity android:name=".activity.HomeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.HOME"/>
+
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+        </activity>
+        >
+        <activity android:name=".activity.SettingActivity"/>
+        <activity android:name=".activity.TestActivity"/>
+        <activity android:name=".activity.SetupOverActivity"/>
+        <activity android:name=".activity.Setup1Activity"/>
+        <activity android:name=".activity.Setup2Activity"/>
+        <activity android:name=".activity.Setup3Activity"/>
+        <activity android:name=".activity.Setup4Activity"/>
+        <activity android:name=".activity.ContactlistActivity"/>
+        <activity android:name=".activity.ContactslistActivity"/>
+        <activity android:name=".activity.AToolActivity"/>
+        <activity android:name=".activity.QureyAddressActivity"/>
+        <activity
+            android:name=".activity.ToastLocationActivity"
+            android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
+        <activity android:name=".activity.BlackNumberActivity"/>
+        <activity android:name=".activity.ProcessManagerActivity"/>
+        <activity android:name=".activity.ProcessSettingActivity"/>
+        <activity android:name=".activity.AppManagerActivity"/>
+        <activity android:name=".activity.CommonNumberQueryActivity"/>
+        <activity android:name=".activity.AppLockActivity" />
+
+        <receiver
+            android:name=".receiver.BootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+            </intent-filter>
+        </receiver>
+        <receiver
+            android:name=".receiver.SmsReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.provider.Telephony.SMS_RECEIVED"/>
+            </intent-filter>
+        </receiver>
+        <receiver android:name=".receiver.MyAppWidgetProvider">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/process_widget_provider"/>
+        </receiver>
+        <receiver android:name=".receiver.KillProcessReceiver">
+            <intent-filter>
+
+                <!-- 为了去关联系统短信的广播对应过滤条件,先将编译版本改为4.1.2 -->
+                <action android:name="android.intent.action.KILL_BACKGROUND_PROCESS"/>
+            </intent-filter>
+        </receiver>
+
+        <service
+            android:name=".service.AddressService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+        <service
+            android:name=".service.BlacknumberService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+        <service
+            android:name=".service.LockScreenService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+        <service
+            android:name=".service.UpdateWidgetService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
+    </application>
+
+</manifest>

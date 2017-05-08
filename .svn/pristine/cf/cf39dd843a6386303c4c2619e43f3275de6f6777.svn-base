@@ -1,0 +1,10 @@
+package com.example.mobilesafe74.receiver;
+
+import android.appwidget.AppWidgetProvider;
+
+/**
+ * Created by yueyue on 2017/1/29.
+ */
+
+public class MyAppWidgetProvider extends AppWidgetProvider {
+}

@@ -1,0 +1,146 @@
+package com.example.mobilesafe74.activity;
+
+import android.os.Bundle;
+import android.os.Environment;
+import android.os.Handler;
+import android.os.Message;
+import android.os.StatFs;
+import android.support.v7.app.AppCompatActivity;
+import android.text.format.Formatter;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import com.example.mobilesafe74.bean.AppInfo;
+import com.example.mobilesafe74.R;
+import com.example.mobilesafe74.provider.AppInfoProvider;
+
+import java.util.List;
+
+
+public class AppManagerActivity extends AppCompatActivity {
+
+    private ListView lv_app_list;
+    private List<AppInfo> mAppInfoList;
+    private Handler mHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            mMyAdapter = new MyAdapter();
+            lv_app_list.setAdapter(mMyAdapter);
+        }
+    };
+    private MyAdapter mMyAdapter;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_app_manager);
+
+        initTitle();
+
+        initList();
+    }
+
+
+    private void initList() {
+        lv_app_list = (ListView) findViewById(R.id.lv_app_list);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mAppInfoList = AppInfoProvider.getAppInfoList(getApplicationContext());
+                mHandler.sendEmptyMessage(0);
+            }
+        }){}.start();
+
+    }
+
+
+
+    /**
+     * 获得磁盘以及sd卡可用大小
+     */
+    private void initTitle() {
+        //获得磁盘的路径
+        String path= Environment.getDataDirectory().getAbsolutePath();
+        //获得sd卡路径
+        String sdPath=Environment.getExternalStorageDirectory().getAbsolutePath();
+
+        String memorySize = Formatter.formatFileSize(this, getAvailSpace(path));
+        String sdMemorySize = Formatter.formatFileSize(this, getAvailSpace(sdPath));
+
+        //找到我们需要组件
+        TextView tv_memory = (TextView) findViewById(R.id.tv_memory);
+        TextView tv_sd_memory = (TextView) findViewById(R.id.tv_sd_memory);
+
+        tv_memory.setText("磁盘可用:"+memorySize);
+        tv_sd_memory.setText("sd卡可用"+sdMemorySize);
+    }
+
+    /**
+     * 获得磁盘(sd卡)可用空间
+     * @param path 磁盘(获得sd卡)路径
+     */
+    private long getAvailSpace(String path) {
+        StatFs statFs = new StatFs(path);
+        //获取可用区块的个数
+
+        long count = statFs.getAvailableBlocks();
+        //获取可用区块的大小
+        long size = statFs.getBlockSize();
+
+        return count*size;
+    }
+
+    private class MyAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return mAppInfoList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return mAppInfoList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder=null;
+            if (convertView==null){
+                convertView=View.inflate(getApplicationContext(),R.layout.listview_app_item,null);
+                viewHolder=new ViewHolder();
+                viewHolder.iv_icon = (ImageView)convertView.findViewById(R.id.iv_icon);
+                viewHolder.tv_name = (TextView)convertView.findViewById(R.id.tv_name);
+                viewHolder.tv_path = (TextView) convertView.findViewById(R.id.tv_path);
+                convertView.setTag(viewHolder);
+            }else {
+              viewHolder=(ViewHolder)  convertView.getTag();
+            }
+            viewHolder.iv_icon.setBackgroundDrawable(mAppInfoList.get(position).getIcon());
+            viewHolder.tv_name.setText(mAppInfoList.get(position).getName());
+            if(mAppInfoList.get(position).isSdCard()){
+                viewHolder.tv_path.setText("sd卡应用");
+            }else{
+                viewHolder.tv_path.setText("手机应用");
+            }
+
+
+
+            return convertView;
+        }
+    }
+
+
+    static class ViewHolder {
+        ImageView iv_icon;
+        TextView tv_name;
+        TextView tv_path;
+    }
+}

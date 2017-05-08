@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+        style="@style/TitleStyle"
+        android:text="功能列表"/>
+    <!--
+
+        <TextView
+            android:singleLine="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            android:focusable="true"
+            android:textColor="#000"
+            android:focusableInTouchMode="true"
+            android:textSize="18sp"
+            android:text="我真的很希望可以再次看到那个没有bug的女孩,我愿意寒假不玩耍来见她"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+    -->
+
+    <com.example.mobilesafe74.view.FocusTextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ellipsize="marquee"
+        android:marqueeRepeatLimit="marquee_forever"
+        android:padding="5dp"
+        android:singleLine="true"
+        android:text="我真的很希望可以再次看到那个没有bug的女孩,我愿意寒假不玩耍来见她"
+        android:textColor="#000"
+        android:textSize="18sp"
+        >
+    </com.example.mobilesafe74.view.FocusTextView>
+
+    <GridView
+        android:id="@+id/gv_home"
+        android:verticalSpacing="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:numColumns="3"></GridView>
+</LinearLayout>

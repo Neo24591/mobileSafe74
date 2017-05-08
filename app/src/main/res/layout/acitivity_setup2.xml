@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <TextView
+        style="@style/TitleStyle"
+        android:text="2,手机卡绑定"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp"
+        android:text="通过绑定sim卡:\n下次重启手机如果发现sim卡变化,就会发送报警短信"
+        android:textColor="#000"
+        android:textSize="18sp"/>
+
+    <com.example.mobilesafe74.view.SettingItemView
+        xmlns:mobilesafe="http://schemas.android.com/apk/res/com.example.mobilesafe74"
+        android:id="@+id/siv_sim_bound"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        mobilesafe:desoff="点击绑定sim卡"
+        mobilesafe:deson="sim卡已绑定"
+        mobilesafe:destitle="sim卡未绑定">
+    </com.example.mobilesafe74.view.SettingItemView>
+
+    <!-- 让内部点的控件水平居中 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal">
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/presence_invisible"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/presence_online"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/presence_invisible"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:drawable/presence_invisible"/>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:background="@drawable/bind"/>
+        <!-- 图片选择器,在选中和未选中的过程中,切换展示图片 -->
+
+        <!--        <Button
+                    android:drawableRight="@drawable/next"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:text="下一页"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:background="@drawable/selector_next_btn_bg" />-->
+        <Button
+            style="@style/nextBtn"/>
+
+        <Button
+            style="@style/preBtn"/>
+    </RelativeLayout>
+
+</LinearLayout>

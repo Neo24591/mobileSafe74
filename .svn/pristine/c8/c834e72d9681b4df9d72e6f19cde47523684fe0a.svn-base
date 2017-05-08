@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+    >
+    <!--    &lt;!&ndash;引入布局文件&ndash;&gt;
+        <include layout="@layout/setting_item_view"/>-->
+    <TextView
+        style="@style/TitleStyle"
+        android:text="设置中心"/>
+    <!--
+        <RelativeLayout
+            android:padding="5dp"
+            android:layout_width="wrap_content"
+            android:layout_height="557dp">
+
+            <TextView
+                android:id="@+id/tv_title"
+            android:textSize="18sp"
+            android:textColor="#000"
+            android:text="自动更新设置"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/tv_des"
+                android:layout_below="@id/tv_title"
+                android:textSize="18sp"
+                android:textColor="#000"
+                android:text="自动更新已关闭"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <CheckBox
+                android:id="@+id/cb_box"
+                android:layout_alignParentRight="true"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+
+            <view
+                android:layout_below="@id/tv_des"
+                android:textColor="#000"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"/>
+
+        </RelativeLayout>-->
+
+    <com.example.mobilesafe74.view.SettingItemView
+        xmlns:mobilesafe="http://schemas.android.com/apk/res/com.example.mobilesafe74"
+        android:id="@+id/siv_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        mobilesafe:desoff="自动更新已关闭"
+        mobilesafe:deson="自动更新已开启"
+        mobilesafe:destitle="自动更新设置">
+    </com.example.mobilesafe74.view.SettingItemView>
+
+
+    <com.example.mobilesafe74.view.SettingItemView
+        xmlns:mobilesafe="http://schemas.android.com/apk/res/com.example.mobilesafe74"
+        android:id="@+id/siv_address"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        mobilesafe:desoff="归属地已关闭"
+        mobilesafe:deson="归属地已开启"
+        mobilesafe:destitle="电话归属地的显示设置">
+    </com.example.mobilesafe74.view.SettingItemView>
+
+
+    <com.example.mobilesafe74.view.SettingClickView
+        android:id="@+id/scv_toast_style"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.example.mobilesafe74.view.SettingClickView>
+
+    <com.example.mobilesafe74.view.SettingClickView
+        android:id="@+id/scv_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    </com.example.mobilesafe74.view.SettingClickView>
+</LinearLayout>

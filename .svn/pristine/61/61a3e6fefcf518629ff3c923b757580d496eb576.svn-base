@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
+	<TextView
+	    android:id="@+id/tv_toast"
+	    android:background="@drawable/call_locate_white"
+	    android:text="电话来了"
+	    android:gravity="center"
+	    android:drawableLeft="@android:drawable/ic_menu_call"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content">
+	</TextView>
+</LinearLayout>

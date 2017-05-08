@@ -1,0 +1,25 @@
+package com.example.mobilesafe74.bean;
+
+/**
+ * Created by yueyue on 2017/1/26.
+ */
+public class BlackNumberInfo {
+    private String phone;
+    private    String mode;
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+}

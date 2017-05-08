@@ -1,0 +1,69 @@
+package com.example.mobilesafe74.engine;
+
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * Created by yueyue on 2017/1/22.
+ */
+
+public class AddressDao {
+    //获得数据库的路径
+    static String path = "data/data/com.example.mobilesafe74/files/address.db";
+    private static String TAG = "AddressDao";
+    private static String sAddress="未知号码";
+
+    //查询手机号码
+    public static String getAddress(String phone) {
+        boolean isphone = isPhone(phone);
+        if (isphone) {
+            phone = phone.substring(0, 7);
+            SQLiteDatabase db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY);
+            Cursor cursor = db.query("data1", new String[]{"outkey"}, "id=?", new String[]{phone}, null, null, null);
+            while (cursor.moveToNext()) {
+                String outkey = cursor.getString(0);
+                Log.i(TAG, outkey);
+                Cursor indexCursor = db.query("data2", new String[]{"location"}, "id=?", new String[]{outkey}, null, null, null);
+                while (indexCursor.moveToNext()) {
+                    sAddress = indexCursor.getString(0);
+                    Log.i(TAG, sAddress);
+                }
+            }
+        }else {
+        }
+        if (phone.contains("130")){
+            sAddress="我的电话";
+        }else  if (phone.equals("110")){
+            sAddress="报警电话";
+        }else  if (phone.equals("120")){
+            sAddress="急救电话";
+        }else  if (phone.equals("114")){
+            sAddress="查询电话";
+        }else  if (phone.equals("119")){
+            sAddress="火警电话";
+        }
+
+        return sAddress;
+
+    }
+
+    /**
+     * 判断手机格式是否正确,返回true代表手机号码格式正确,false代表手机号码格式不正确
+     */
+
+    private static boolean isPhone(String str) {
+        Pattern pattern = Pattern.compile("1[0-9]{10}");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.matches()) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+
+}

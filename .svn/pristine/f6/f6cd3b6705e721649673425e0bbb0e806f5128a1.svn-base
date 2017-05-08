@@ -1,0 +1,81 @@
+package com.example.mobilesafe74.service;
+
+import android.Manifest;
+import android.app.Service;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
+import android.os.Bundle;
+import android.os.IBinder;
+import android.support.v4.app.ActivityCompat;
+import android.telephony.SmsManager;
+
+public class LocationService extends Service {
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        //获得一个LocationManager对象
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+        Criteria criteria = new Criteria();
+        //容许花费,即产生的流量费
+        criteria.setCostAllowed(true);
+        //设置精确度
+        criteria.setAccuracy(Criteria.ACCURACY_FINE);
+        String bestProvider = locationManager.getBestProvider(criteria, true);//获得一个provider对象
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+
+            //return;
+//            ActivityCompat.requestPermissions(,new String[]{Manifest.permission.ACCESS_FINE_LOCATION,Manifest.permission.ACCESS_COARSE_LOCATION},1);
+        }
+        locationManager.requestLocationUpdates(bestProvider, 0, 0, new MyLocationListener());
+
+    }
+
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+        return null;
+    }
+
+    //继承LocatonListener
+    class MyLocationListener implements LocationListener {
+        @Override
+        public void onLocationChanged(Location location) {
+            double longitude = location.getLongitude();//获得位置的经度
+            double latitude = location.getLatitude();//获得位置的纬度
+            //拿到地址之后发送短信给我们需要的手机
+
+            SmsManager sms = SmsManager.getDefault();
+            sms.sendTextMessage("5556", null, "longitude:" + longitude + ",latitude" + latitude, null, null);
+        }
+
+        @Override
+        public void onStatusChanged(String provider, int status, Bundle extras) {
+
+        }
+
+        @Override
+        public void onProviderEnabled(String provider) {
+
+        }
+
+        @Override
+        public void onProviderDisabled(String provider) {
+
+        }
+    }
+}

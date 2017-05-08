@@ -1,0 +1,256 @@
+package com.example.mobilesafe74.activity;
+
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RadioGroup;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.mobilesafe74.R;
+import com.example.mobilesafe74.bean.BlackNumberInfo;
+import com.example.mobilesafe74.db.BlackNumberDao;
+
+import java.util.List;
+
+
+/**
+ * Created by yueyue on 2017/1/25.
+ */
+public class BlackNumberActivity extends AppCompatActivity {
+
+    private Button bt_add;
+    private ListView lv_blacknumber;
+    private BlackNumberDao mDao;
+    private List<BlackNumberInfo> mBlackNumberInfoList;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            mMyAdapter = new MyAdapter();
+            lv_blacknumber.setAdapter(mMyAdapter);
+        }
+    };
+    private MyAdapter mMyAdapter;
+    int mode = 1;//对话框默认的模式为短信
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        setContentView(R.layout.activity_blacknumber);
+
+        initUI();
+
+        initData();
+    }
+
+    /**
+     * 初始化数据
+     */
+    private void initData() {
+        //查询是一个耗时的操作,需要在子线程操作
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                mDao = BlackNumberDao.getInstance(getApplicationContext());
+                mBlackNumberInfoList = mDao.findAll();
+
+                mHandler.sendEmptyMessage(0);
+            }
+        }) {
+        }.start();
+
+    }
+
+    /**
+     * 初始化UI
+     */
+    private void initUI() {
+        //找到我们需要组件
+        bt_add = (Button) findViewById(R.id.bt_add);
+        lv_blacknumber = (ListView) findViewById(R.id.lv_blacknumber);
+
+        bt_add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showDialog();
+
+            }
+        });
+    }
+
+    /**
+     * 显示对话框
+     */
+    private void showDialog() {
+        //自定义一个AlertDialog对话框
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        final AlertDialog dialog = builder.create();
+        View view = View.inflate(getApplicationContext(), R.layout.dialog_add_blacknumber, null);
+        dialog.setView(view, 0, 0, 0, 0);
+        dialog.show();
+
+        //找到我们需要组件
+        final EditText et_phone = (EditText) view.findViewById(R.id.et_phone);
+        RadioGroup rg_group = (RadioGroup) view.findViewById(R.id.rg_group);
+        Button bt_submit = (Button) view.findViewById(R.id.bt_submit);
+        Button bt_cancel = (Button) view.findViewById(R.id.bt_cancel);
+
+
+        rg_group.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.rb_sms:
+                        mode = 1;
+                        break;
+                    case R.id.rb_phone:
+                        mode = 2;
+                        break;
+                    case R.id.rb_all:
+                        mode = 3;
+                        break;
+                }
+            }
+        });
+        bt_submit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String phone = et_phone.getText().toString().trim();
+                if (!TextUtils.isEmpty(phone)) {
+                    if (phone.contains(" ")) {
+                        phone = phone.replace(" ", "");
+                    }
+                    //往数据库插入一条数据
+                    mDao.insert(phone, mode + "");
+                    //更新ListView的条目
+                    BlackNumberInfo blackNumberInfo = new BlackNumberInfo();
+                    blackNumberInfo.setPhone(phone);
+                    blackNumberInfo.setMode(mode + "");
+                    mBlackNumberInfoList.add(0, blackNumberInfo);
+
+                    if (mMyAdapter != null) {
+
+                        mMyAdapter.notifyDataSetChanged();
+                    }
+
+                    dialog.dismiss();
+
+                } else {
+                    Toast.makeText(BlackNumberActivity.this, "请输入手机号码", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+        });
+
+        bt_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+            }
+        });
+
+    }
+
+    class MyAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return mBlackNumberInfoList.size();
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, ViewGroup parent) {
+//            View view = null;
+            ViewHolder viewHolder = null;
+            if (viewHolder == null) {
+                viewHolder = new ViewHolder();
+
+                convertView = View.inflate(getApplicationContext(), R.layout.activity_blacknumber_item, null);
+                viewHolder.tv_phone = (TextView) convertView.findViewById(R.id.tv_phone);
+                viewHolder.tv_mode = (TextView) convertView.findViewById(R.id.tv_mode);
+                viewHolder.iv_delete = (ImageView) convertView.findViewById(R.id.iv_delete);
+                convertView.setTag(viewHolder);
+            } else {
+                viewHolder = (ViewHolder) convertView.getTag();
+            }
+
+
+            viewHolder.tv_phone.setText(mBlackNumberInfoList.get(position).getPhone());
+            int mode = Integer.parseInt(mBlackNumberInfoList.get(position).getMode());
+            switch (mode) {
+                case 1:
+
+                    viewHolder.tv_mode.setText("短信");
+                    break;
+                case 2:
+
+                    viewHolder.tv_mode.setText("电话");
+                    break;
+                case 3:
+
+                    viewHolder.tv_mode.setText("全部");
+                    break;
+            }
+
+            viewHolder.iv_delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                //删除之前确认一下是否真的删除
+                public void onClick(View v) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(BlackNumberActivity.this);
+                    builder.setIcon(R.mipmap.ic_launcher).
+                            setTitle("确定删除???").
+                            setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    //删除数据库中的数据
+                                    mDao.delete(mBlackNumberInfoList.get(position).getPhone());
+                                    //删除ListView中的数据
+                                    mBlackNumberInfoList.remove(position);
+                                    if (mMyAdapter != null) {
+                                        mMyAdapter.notifyDataSetChanged();
+                                    }
+                                }
+                            }).
+                            setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            }).
+                            show();
+
+                }
+            });
+
+            return convertView;
+        }
+
+        private class ViewHolder {
+            TextView tv_phone;
+            TextView tv_mode;
+            ImageView iv_delete;
+        }
+    }
+}

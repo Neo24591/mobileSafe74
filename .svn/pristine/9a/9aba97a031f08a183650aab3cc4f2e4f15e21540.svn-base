@@ -1,0 +1,98 @@
+package com.example.mobilesafe74.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.example.mobilesafe74.R;
+
+/**
+ * Created by yueyue on 2017/1/17.
+ */
+public class Setup3Activity extends AppCompatActivity {
+    private EditText et_phone_number;
+    private Button bt_select_number;
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.acitivity_setup3);
+
+
+        //初始化UI
+        initUI();
+    }
+
+    /**
+     * 初始化UI
+     */
+    private void initUI() {
+        //找到我们需要的组件
+        et_phone_number = (EditText) findViewById(R.id.et_phone_number);
+        bt_select_number = (Button) findViewById(R.id.bt_select_number);
+        bt_select_number.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getApplicationContext(), ContactlistActivity.class);
+                startActivityForResult(intent, 0);
+            }
+        });
+
+    }
+
+    /**
+     * 选择联系人ContactlistActivity界面跟Setup3Activity界面跟的返回结果处理
+     *
+     * @param requestCode 请求码
+     * @param resultCode  结果码
+     * @param data        intent纽带中带的数据
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        //判断一下resultCode,100代表ContactlistActivity返回的结果,101代表ContactslistActivity返回的结果,
+        if (resultCode == 100) {
+            if (data != null) {
+                String phone = data.getStringExtra("phone");
+                //把得到的phone删除前后的空格以及中间的隔间线已经空格
+                phone = phone.replace("-", "").replace(" ", "").trim();
+                et_phone_number.setText(phone);
+            }
+        }else if (resultCode == 101){
+            if (data != null) {
+                String phone = data.getStringExtra("phone");
+                //把得到的phone删除前后的空格以及中间的隔间线已经空格
+                phone = phone.replace("-", "").replace(" ", "").trim();
+                et_phone_number.setText(phone);
+            }
+        }
+    }
+
+    /**
+     * 从Setup3Activity界面跳转到之前的Setup2Activity界面
+     *
+     * @param view
+     */
+    public void prePage(View view) {
+        Intent intent = new Intent(getApplicationContext(), Setup2Activity.class);
+        startActivity(intent);
+
+        finish();//销毁当前页面
+    }
+
+    /**
+     * 从Setup3Activity界面跳转到Setup4Activity界面
+     *
+     * @param view
+     */
+    public void nextPage(View view) {
+        Intent intent = new Intent(getApplicationContext(), Setup4Activity.class);
+        startActivity(intent);
+
+        finish();//销毁当前页面
+    }
+}

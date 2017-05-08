@@ -1,0 +1,273 @@
+package com.example.mobilesafe74.activity;
+
+import android.app.ActivityManager;
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.text.format.Formatter;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.mobilesafe74.R;
+import com.example.mobilesafe74.bean.ProcessInfo;
+import com.example.mobilesafe74.engine.ProcessInfoProvider;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by yueyue on 2017/1/28.
+ */
+public class ProcessManagerActivity extends AppCompatActivity implements View.OnClickListener {
+    private TextView tv_process_count,tv_memory_info,tv_des;
+    private ListView lv_process_list;
+    private Button bt_select_all,bt_select_reverse,bt_clear,bt_setting;
+    private int mProcessCount;
+    private long mAvailSpace;
+    private String mStrTotalSpace;
+    private Handler mHandler=new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            mMyAdapter = new MyAdapter();
+            lv_process_list.setAdapter(mMyAdapter);
+        }
+    };
+    private MyAdapter mMyAdapter;
+    private List<ProcessInfo> mProcessInfoList;
+    private ProcessInfo mProcessInfo;
+
+
+    private class MyAdapter extends BaseAdapter {
+        @Override
+        public int getCount() {
+            return mProcessInfoList.size();
+        }
+
+        @Override
+        public ProcessInfo getItem(int position) {
+            return mProcessInfoList.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return position;
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            ViewHolder viewHolder=null;
+            if (convertView==null){
+                convertView=View.inflate(getApplicationContext(),R.layout.listview_process_item,null);
+                viewHolder=new ViewHolder();
+                viewHolder.iv_icon = (ImageView)convertView.findViewById(R.id.iv_icon);
+                viewHolder.tv_name = (TextView)convertView.findViewById(R.id.tv_name);
+                viewHolder.tv_memory_info = (TextView)convertView.findViewById(R.id.tv_memory_info);
+                viewHolder.cb_box = (CheckBox) convertView.findViewById(R.id.cb_box);
+                convertView.setTag(viewHolder);
+            }else {
+                viewHolder=(ViewHolder)  convertView.getTag();
+            }
+            viewHolder.iv_icon.setBackgroundDrawable(mProcessInfoList.get(position).getIcon());
+            viewHolder.tv_name.setText(mProcessInfoList.get(position).getName());
+
+            String strMemSize = Formatter.formatFileSize(getApplicationContext(), getItem(position).memSize);
+            viewHolder.tv_memory_info.setText(strMemSize);
+
+            if (getItem(position).getPackageName().equals(getPackageName())){
+                viewHolder.cb_box.setVisibility(View.GONE);
+            }else {
+                viewHolder.cb_box.setVisibility(View.VISIBLE);
+            }
+            viewHolder.cb_box.setChecked(getItem(position).isCheck);
+
+            return convertView;
+        }
+    }
+
+
+     class ViewHolder {
+        ImageView iv_icon;
+        TextView tv_name;
+        TextView tv_memory_info;
+        CheckBox cb_box;
+    }
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_process_manager);
+
+        initUI();
+        initTitleData();
+        initListData();
+    }
+
+    private void initListData() {
+        getData();
+    }
+
+    private void getData() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+//                mAppInfoList = AppInfoProvider.getAppInfoList(getApplicationContext());
+                mProcessInfoList = ProcessInfoProvider.getProcessInfo(getApplicationContext());
+
+                mHandler.sendEmptyMessage(0);
+            }
+        }){}.start();
+    }
+
+
+    private void initTitleData() {
+        mProcessCount = ProcessInfoProvider.getProcessCount(this);
+        tv_process_count.setText("进程总数:"+mProcessCount);
+
+        //获取可用内存大小,并且格式化
+        mAvailSpace = ProcessInfoProvider.getAvailSpace(this);
+        String strAvailSpace = Formatter.formatFileSize(this, mAvailSpace);
+
+        //总运行内存大小,并且格式化
+        long totalSpace = ProcessInfoProvider.getTotalSpace(this);
+        mStrTotalSpace = Formatter.formatFileSize(this, totalSpace);
+
+        tv_memory_info.setText("剩余/总共:"+strAvailSpace+"/"+mStrTotalSpace);
+    }
+
+    private void initUI() {
+        tv_process_count = (TextView) findViewById(R.id.tv_process_count);
+        tv_memory_info = (TextView) findViewById(R.id.tv_memory_info);
+
+        tv_des = (TextView) findViewById(R.id.tv_des);
+
+        lv_process_list = (ListView) findViewById(R.id.lv_process_list);
+
+        bt_select_all = (Button) findViewById(R.id.bt_select_all);
+        bt_select_reverse = (Button) findViewById(R.id.bt_select_reverse);
+        bt_clear = (Button)  findViewById(R.id.bt_clear);
+        bt_setting = (Button) findViewById(R.id.bt_setting);
+
+        bt_select_all.setOnClickListener(this);
+        bt_select_reverse.setOnClickListener(this);
+        bt_clear.setOnClickListener(this);
+        bt_setting.setOnClickListener(this);
+
+        lv_process_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //滚动过程中调用方法
+                //AbsListView中view就是listView对象
+                //firstVisibleItem第一个可见条目索引值
+                //visibleItemCount当前一个屏幕的可见条目数
+                //总共条目总数
+                mProcessInfo = mProcessInfoList.get(position);
+                if(mProcessInfo!=null){
+                    if (!mProcessInfo.getPackageName().equals(getPackageName())){
+                        //选中条目指向的对象和本应用的包名不一致,才需要去状态取反和设置单选框状态
+                        //状态取反
+                        mProcessInfo.isCheck=!mProcessInfo.isCheck;
+                        //checkbox显示状态切换
+                        //通过选中条目的view对象,findViewById找到此条目指向的cb_box,然后切换其状态
+                        CheckBox cb_box = (CheckBox) view.findViewById(R.id.cb_box);
+                        cb_box.setChecked(mProcessInfo.isCheck);
+                    }
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.bt_select_all:
+                selectAll();
+                break;
+            case R.id.bt_select_reverse:
+                selectReverse();
+                break;
+            case R.id.bt_clear:
+                clearAll();
+                break;
+            case R.id.bt_setting:
+
+                break;
+        }
+    }
+
+    private void clearAll() {
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        List<ProcessInfo> killProcessList = new ArrayList<ProcessInfo>();
+        for (ProcessInfo processInfo: mProcessInfoList) {
+            if (processInfo.getPackageName().equals(getPackageName())) {
+                continue;
+            }
+
+            if(processInfo.isCheck){
+                //4,记录需要杀死的系统进程
+                killProcessList.add(processInfo);
+            }
+        }
+        long totalReleaseSpace = 0;
+        for (ProcessInfo processInfo:killProcessList) {
+            mProcessInfoList.remove(processInfo);
+            ProcessInfoProvider.killProcess(getApplicationContext(),processInfo);
+
+            //记录释放空间的总大小
+            totalReleaseSpace += processInfo.memSize;
+        }
+
+        if (mMyAdapter != null) {
+            mMyAdapter.notifyDataSetChanged();
+        }
+
+        //9,进程总数的更新
+        mProcessCount -= killProcessList.size();
+        //10,更新可用剩余空间(释放空间+原有剩余空间 == 当前剩余空间)
+        mAvailSpace += totalReleaseSpace;
+        //11,根据进程总数和剩余空间大小
+        tv_process_count.setText("进程总数:"+mProcessCount);
+        tv_memory_info.setText("剩余/总共"+Formatter.formatFileSize(this, mAvailSpace)+"/"+mStrTotalSpace);
+        String totalRelease = Formatter.formatFileSize(this, totalReleaseSpace);
+        Toast.makeText(this, String.format("杀死了%d进程,释放了%s空间", killProcessList.size(), totalRelease), Toast.LENGTH_SHORT).show();
+
+    }
+
+
+    private void selectReverse() {
+        for (ProcessInfo processInfo: mProcessInfoList) {
+            if (processInfo.getPackageName().equals(getPackageName())){
+                continue;
+            }
+            processInfo.isCheck=!processInfo.isCheck;
+
+        }
+        if (mMyAdapter!=null){
+            mMyAdapter.notifyDataSetChanged();
+        }
+    }
+
+    private void selectAll() {
+        for (ProcessInfo processInfo: mProcessInfoList) {
+            if (processInfo.getPackageName().equals(getPackageName())){
+                continue;
+            }
+            processInfo.isCheck=true;
+
+        }
+        if (mMyAdapter!=null){
+            mMyAdapter.notifyDataSetChanged();
+        }
+    }
+
+}

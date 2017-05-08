@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical">
+
+    <RelativeLayout
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/tv_text"
+            style="@style/TitleStyle"
+            android:gravity="left"
+            android:text="黑名单管理"/>
+
+
+        <Button
+            android:id="@+id/bt_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignBottom="@id/tv_text"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="#fcc"
+            android:text="添加"/>
+
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/lv_blacknumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"></ListView>
+</LinearLayout>

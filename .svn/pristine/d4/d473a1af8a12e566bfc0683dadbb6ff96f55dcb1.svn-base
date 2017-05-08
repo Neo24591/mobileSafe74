@@ -1,0 +1,15 @@
+package com.example.mobilesafe74.utils;
+
+/**
+ * Created by yueyue on 2017/1/16.
+ */
+public class ConstantValue {
+    /**
+     * 设置中心里面是否开启自动更新
+     */
+    public static final String OPEN_UPDATE ="open_update";
+    /**
+     * 手机防盗中的键,存储的值就是手机防盗设置的密码
+     */
+    public static final String MOBILE_SAFE_PWD ="mobile_safe_pwd" ;
+}

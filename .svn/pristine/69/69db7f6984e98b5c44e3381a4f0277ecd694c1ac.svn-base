@@ -1,0 +1,147 @@
+package com.example.mobilesafe74.engine;
+
+import android.app.ActivityManager;
+import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
+import android.os.Debug;
+
+import com.example.mobilesafe74.R;
+import com.example.mobilesafe74.bean.ProcessInfo;
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by yueyue on 2017/1/28.
+ */
+
+public class ProcessInfoProvider {
+
+    /**
+     * 获得进程的数量
+     *
+     * @param context 上下文环境
+     * @return 进程的数量
+     */
+    public static int getProcessCount(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
+        return runningAppProcesses.size();
+
+    }
+
+    /**
+     * 获得进程的剩余进程空间
+     *
+     * @param context
+     * @return 返回可用的内存数 bytes
+     */
+    public static long getAvailSpace(Context context) {
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        am.getMemoryInfo(memoryInfo);
+        return memoryInfo.availMem;
+    }
+
+    /**
+     * @param context
+     * @return 返回总的内存数    单位为bytes 返回0说明异常
+     */
+    public static long getTotalSpace(Context context) {
+        /*ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        am.getMemoryInfo(memoryInfo);
+        return memoryInfo.totalMem;*/
+        FileReader fileReader = null;
+        BufferedReader bufferedReader = null;
+        try {
+            fileReader = new FileReader("proc/meminfo");
+            bufferedReader = new BufferedReader(fileReader);
+            StringBuffer stringBuffer = new StringBuffer();
+            String lineOne = bufferedReader.readLine();
+            char[] chars = lineOne.toCharArray();
+            for (char c : chars) {
+                if (c > '0' && c < '9') {
+                    stringBuffer.append(c);
+                }
+            }
+
+            return Long.parseLong(stringBuffer.toString()) * 1024;
+
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (fileReader != null && bufferedReader != null)
+                try {
+                    fileReader.close();
+                    bufferedReader.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+        }
+
+        return 0;
+    }
+
+    /**
+     * @param context 上下文环境
+     * @return 当前手机正在运行的进程的相关信息
+     */
+    public static List<ProcessInfo> getProcessInfo(Context context) {
+        List<ProcessInfo> processInfoList = new ArrayList<>();
+        //循环遍历上诉集合,获取进程相关信息(名称,包名,图标,使用内存大小,是否为系统进程(状态机))
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        PackageManager packageManager = context.getPackageManager();
+        List<ActivityManager.RunningAppProcessInfo> runningAppProcesses = am.getRunningAppProcesses();
+        for (ActivityManager.RunningAppProcessInfo info : runningAppProcesses) {
+            ProcessInfo processInfo = new ProcessInfo();
+            //获取进程的名称 == 应用的包名
+            processInfo.packageName = info.processName;
+            //5,获取进程占用的内存大小(传递一个进程对应的pid数组)
+            Debug.MemoryInfo[] processMemoryInfo = am.getProcessMemoryInfo(new int[]{info.pid});
+            //6,返回数组中索引位置为0的对象,为当前进程的内存信息的对象
+            android.os.Debug.MemoryInfo memoryInfo = processMemoryInfo[0];
+            //7,获取已使用的大小
+            processInfo.memSize = memoryInfo.getTotalPrivateDirty() * 1024;
+
+            try {
+                ApplicationInfo applicationInfo = packageManager.getApplicationInfo(processInfo.packageName, 0);
+                //获得应用的名字
+                processInfo.name = applicationInfo.loadLabel(packageManager).toString();
+                //获得应用的图标
+                processInfo.icon = applicationInfo.loadIcon(packageManager);
+
+                //判断是否系统应用
+                if ((applicationInfo.flags & ApplicationInfo.FLAG_SYSTEM) == ApplicationInfo.FLAG_SYSTEM) {
+                    processInfo.isSystem = true;
+                } else {
+                    processInfo.isSystem = false;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                e.printStackTrace();
+                processInfo.name = info.processName;
+                processInfo.icon = context.getResources().getDrawable(R.mipmap.ic_launcher);
+                processInfo.isSystem = false;
+            }
+            processInfoList.add(processInfo);
+
+        }
+
+        return processInfoList;
+    }
+
+    public static void killProcess(Context context, ProcessInfo processInfo) {
+        //1,获取activityManager
+        ActivityManager am = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        //2,杀死指定包名进程(权限)
+        am.killBackgroundProcesses(processInfo.packageName);
+    }
+}

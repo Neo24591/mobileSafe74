@@ -1,0 +1,45 @@
+package com.example.mobilesafe74.activity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+
+import com.example.mobilesafe74.R;
+
+/**
+ * Created by yueyue on 2017/1/17.
+ */
+
+public class Setup2Activity extends AppCompatActivity{
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.acitivity_setup2);
+
+
+    }
+
+    /**
+     * 从Setup2Activity界面跳转到之前的Setup1Activity界面
+     * @param view
+     */
+    public void prePage(View view){
+        Intent intent = new Intent(Setup2Activity.this, Setup1Activity.class);
+        startActivity(intent);
+
+        finish();//销毁当前页面
+    }
+
+    /**
+     * 从Setup2Activity界面跳转到Setup3Activity界面
+     * @param view
+     */
+    public void nextPage(View view){
+        Intent intent = new Intent(Setup2Activity.this, Setup3Activity.class);
+        startActivity(intent);
+
+        finish();//销毁当前页面
+    }
+}
